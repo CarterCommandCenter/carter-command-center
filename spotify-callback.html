@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Carter Command Center — Spotify Connection</title>
+<style>
+html,body{margin:0;min-height:100%;background:#030e1d;color:#d9f7ff;font:16px system-ui,Arial,sans-serif}main{max-width:620px;margin:12vh auto;padding:32px;border:1px solid #00cfff;border-radius:14px;background:#061e35;box-shadow:0 0 25px #0088cc55}h1{color:#6beaff}a{color:#78e9ff}small{color:#9ab9ca}
+</style>
+</head>
+<body><main><h1>⚡ Carter Command Center</h1><h2>Spotify connection callback</h2><p id="status">This page is ready for Spotify authorization. The music controls have not been connected yet.</p><p><a href="./index.html">Return to Carter Command Center</a></p><small>This page does not ask for your password or store Spotify credentials.</small></main>
+<script>
+(function(){
+  var p=new URLSearchParams(location.search);
+  var status=document.getElementById('status');
+  if(p.has('error')) status.textContent='Spotify authorization was not completed: '+p.get('error')+'. Return to the dashboard and try again after the Spotify controls are installed.';
+  else if(p.has('code')) status.textContent='Spotify returned an authorization code. The dashboard integration is not installed yet, so no account connection has been completed. Return to the dashboard.';
+  if(p.has('code')||p.has('error')) history.replaceState(null,'',location.pathname);
+})();
+</script>
+</body></html>

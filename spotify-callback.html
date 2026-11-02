@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Carter Command Center — Spotify Login</title><style>body{background:#020d1d;color:#d6f8ff;font:16px Arial,sans-serif;display:grid;place-items:center;min-height:90vh}main{border:1px solid #19d6ff;background:#06233d;padding:28px;border-radius:12px;max-width:600px}h1{color:#61e7ff}a{color:#61e7ff}</style></head><body><main><h1>⚡ Carter Command Center</h1><h2>Spotify connection</h2><p id="status">Checking Spotify authorization…</p><p><a href="./index.html?v=46">Return to Command Center</a></p></main><script>
+(async function(){
+var status=document.getElementById('status'),client='fb9425622fb44a7989ea2b01f821fea8';
+try{
+var q=new URLSearchParams(location.search);
+if(q.has('error'))throw Error('Spotify authorization declined: '+q.get('error'));
+if(!q.get('code')){status.textContent='Callback page is online. To connect Spotify, open the Spotify panel in Carter Command Center and tap Connect Spotify.';return}
+var raw=sessionStorage.getItem('cc_spotify_pkce_v46');if(!raw)throw Error('Login session not found. Start again from the same browser and tab.');
+var p=JSON.parse(raw);if(p.state!==q.get('state'))throw Error('Security check failed. Start login again.');
+if(Date.now()-p.at>600000)throw Error('Login expired. Start again.');
+status.textContent='Connecting securely to Spotify…';
+var body=new URLSearchParams({grant_type:'authorization_code',code:q.get('code'),redirect_uri:location.origin+location.pathname,client_id:client,code_verifier:p.verifier});
+var r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+if(!r.ok){var d=await r.text();throw Error('Spotify authorization failed ('+r.status+'). '+d.slice(0,150))}
+var t=await r.json();if(!t.access_token||!t.refresh_token)throw Error('Spotify did not return a complete session.');
+localStorage.setItem('cc_spotify_auth_v46',JSON.stringify({access_token:t.access_token,refresh_token:t.refresh_token,expires_at:Date.now()+t.expires_in*1000}));
+sessionStorage.removeItem('cc_spotify_pkce_v46');
+history.replaceState(null,'',location.pathname);
+status.textContent='Spotify connected! Returning to Carter Command Center…';
+setTimeout(function(){location.replace('./index.html?v=46')},900);
+}catch(e){status.textContent=e.message}
+})();
+</script></body></html>
